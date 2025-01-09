@@ -216,7 +216,7 @@ const DraggableTimer: React.FC<DraggableTimerProps> = ({
               playSound('button');
               adjustTime(timer.id, 60);
             }}
-            disabled={timer.isRunning || isEditing}
+            disabled={isEditing}
             className="px-4 py-2 bg-gray-700 rounded"
           >
             +1分
@@ -226,7 +226,7 @@ const DraggableTimer: React.FC<DraggableTimerProps> = ({
               playSound('button');
               adjustTime(timer.id, -60);
             }}
-            disabled={timer.isRunning || isEditing}
+            disabled={isEditing}
             className="ml-2 px-4 py-2 bg-gray-700 rounded"
           >
             -1分
@@ -410,7 +410,7 @@ function App() {
 
   const adjustTime = (id: string, amount: number) => {
     setTimers(timers.map(timer =>
-      timer.id === id && (!timer.isRunning || amount === 600)
+      timer.id === id
         ? timer.timeLeft + amount >= 0 
           ? { ...timer, timeLeft: timer.timeLeft + amount }
           : { ...timer, timeLeft: 0 }
