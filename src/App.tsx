@@ -9,6 +9,7 @@ interface DraggableTimerProps {
   index: number;
   moveTimer: (dragIndex: number, hoverIndex: number) => void;
   toggleTimer: (id: string) => void;
+  toggleWork: (id: string) => void;
   resetTimer: (id: string) => void;
   adjustTime: (id: string, amount: number) => void;
   playSound: (soundType: 'button' | 'alert') => void;
@@ -80,6 +81,7 @@ const DraggableTimer: React.FC<DraggableTimerProps> = ({
   index, 
   moveTimer, 
   toggleTimer, 
+  toggleWork,
   resetTimer, 
   adjustTime, 
   playSound,
@@ -142,21 +144,35 @@ const DraggableTimer: React.FC<DraggableTimerProps> = ({
       } text-white border-black border-4 rounded transition-colors duration-300`}
     >
       <div className="flex-1">
-        <div className='name-text rounded'>
-          {isEditing ? (
-            <input
-              type="text"
-              value={editName}
-              onChange={(e) => setEditName(e.target.value)}
-              onKeyDown={handleKeyDown}
-              className="text-3xl font-bold bg-white text-black px-2 py-1 rounded w-full"
-              autoFocus
-            />
-          ) : (
-            <p className="text-3xl font-bold" onClick={() => setIsEditing(true)}>
-              {timer.name} 【{timer.id}】
-            </p>
-          )}
+        <div className='flex items-center'>
+          <div className={`name-text text-black rounded ${
+            timer.isWorkRemaining ? 'bg-yellow-500' : 'bg-white'
+          }`}>
+            {isEditing ? (
+              <input
+                type="text"
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                onKeyDown={handleKeyDown}
+                className="text-3xl font-bold text-black bg-white px-2 py-1 rounded w-full"
+                autoFocus
+              />
+            ) : (
+              <p className="text-3xl font-bold" onClick={() => setIsEditing(true)}>
+                {timer.name} 【{timer.id}】
+              </p>
+            )}
+          </div>
+          <button
+            onClick={() => {
+              playSound('button');
+              toggleWork(timer.id);
+            }}
+            disabled={isEditing}
+            className="ml-2 px-4 py-2 bg-gray-700 rounded"
+          >
+            続
+          </button>
         </div>
         <div className='timer-text my-2 rounded'>
           <p className='text-4xl font-bold'>
@@ -259,6 +275,7 @@ const defaultTimers: Timer[] = [
     memo: '',
     timeLeft: 1200,
     isRunning: false,
+    isWorkRemaining: false,
     color: 'bg-red-500',
   },
   {
@@ -267,6 +284,7 @@ const defaultTimers: Timer[] = [
     memo: '',
     timeLeft: 1200,
     isRunning: false,
+    isWorkRemaining: false,
     color: 'bg-blue-500',
   },
   {
@@ -275,6 +293,7 @@ const defaultTimers: Timer[] = [
     memo: '',
     timeLeft: 1200,
     isRunning: false,
+    isWorkRemaining: false,
     color: 'bg-green-500',
   },
   {
@@ -283,6 +302,7 @@ const defaultTimers: Timer[] = [
     memo: '',
     timeLeft: 1200,
     isRunning: false,
+    isWorkRemaining: false,
     color: 'bg-yellow-500',
   },
   {
@@ -291,6 +311,7 @@ const defaultTimers: Timer[] = [
     memo: '',
     timeLeft: 1200,
     isRunning: false,
+    isWorkRemaining: false,
     color: 'bg-orange-500',
   },
   {
@@ -299,6 +320,7 @@ const defaultTimers: Timer[] = [
     memo: '',
     timeLeft: 1200,
     isRunning: false,
+    isWorkRemaining: false,
     color: 'bg-pink-500',
   },
   {
@@ -307,6 +329,7 @@ const defaultTimers: Timer[] = [
     memo: '',
     timeLeft: 1200,
     isRunning: false,
+    isWorkRemaining: false,
     color: 'bg-blue-200',
   },
   {
@@ -315,6 +338,7 @@ const defaultTimers: Timer[] = [
     memo: '',
     timeLeft: 1200,
     isRunning: false,
+    isWorkRemaining: false,
     color: 'bg-green-200',
   },
 ];
@@ -368,12 +392,10 @@ function App() {
     ));
   };
 
-  const adjustTime = (id: string, amount: number) => {
+  const toggleWork = (id: string) => {
     setTimers(timers.map(timer =>
-      timer.id === id && (!timer.isRunning || amount === 600)
-        ? timer.timeLeft + amount >= 0 
-          ? { ...timer, timeLeft: timer.timeLeft + amount }
-          : { ...timer, timeLeft: 0 }
+      timer.id === id
+        ? { ...timer, isWorkRemaining: !timer.isWorkRemaining }
         : timer
     ));
   };
@@ -382,6 +404,16 @@ function App() {
     setTimers(timers.map(timer =>
       timer.id === id
         ? { ...timer, ...updates }
+        : timer
+    ));
+  };
+
+  const adjustTime = (id: string, amount: number) => {
+    setTimers(timers.map(timer =>
+      timer.id === id && (!timer.isRunning || amount === 600)
+        ? timer.timeLeft + amount >= 0 
+          ? { ...timer, timeLeft: timer.timeLeft + amount }
+          : { ...timer, timeLeft: 0 }
         : timer
     ));
   };
@@ -436,6 +468,7 @@ function App() {
             index={index}
             moveTimer={moveTimer}
             toggleTimer={toggleTimer}
+            toggleWork={toggleWork}
             resetTimer={resetTimer}
             adjustTime={adjustTime}
             playSound={playSound}
